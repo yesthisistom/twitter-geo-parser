@@ -1,0 +1,22 @@
+<html>
+<head>
+    <link rel="stylesheet" href="{{url_for('static', filename='leaflet/leaflet.css')}}">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <script src="{{url_for('static', filename='jquery-2.2.2.min.js')}}"></script>
+    <script src="{{url_for('static', filename='leaflet/leaflet.js')}}"></script>
+</head>
+<body>
+<div>
+    <center><h2>Locations</h2></center>
+    <hr>
+</div>
+<div>
+
+    <center>
+    {% for location,count in locations.items() %}
+        <b><a href="{{ url_for('location', location_str=location)}}">{{location.title()}} - {{count}}</a></b>
+        <br>
+    {% endfor %}
+        </center>
+    </div>
+</body>

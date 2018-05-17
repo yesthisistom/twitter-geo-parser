@@ -1,0 +1,92 @@
+<html>
+<head>
+    <link rel="stylesheet" href="{{url_for('static', filename='leaflet/leaflet.css')}}">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <script src="{{url_for('static', filename='jquery-2.2.2.min.js')}}"></script>
+    <script src="{{url_for('static', filename='leaflet/leaflet.js')}}"></script>
+</head>
+<div>
+    <center><h1>Mapped Tweets for {{request_box["name"].title()}}</h1></center>
+
+</div>
+
+</body>
+<div><center>
+<div id="mapid" style="width: 75%; height: 80%;"></div>
+<script>
+
+    var coord_map = {}
+    function showTweets(divValue){
+        var element = document.getElementById("show-tweets");
+        element.innerHTML = coord_map[divValue];
+    }
+
+
+
+    var icon_size = 25
+    var twitterIcon = L.icon({
+        iconUrl: '{{url_for('static', filename='icons/twitter_pin.png')}}',
+        iconSize:     [icon_size, icon_size], // size of the icon
+
+        iconAnchor:   [icon_size/2, icon_size], // point of the icon which will correspond to marker's location
+        popupAnchor: [0, -(icon_size-5)]
+    });
+
+	var TILE_URL = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+    var MB_ATTR = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
+    mymap = L.map('mapid').setView({{center}});
+    L.tileLayer(TILE_URL, {attribution: MB_ATTR, maxZoom: 18}).addTo(mymap);
+
+    var markers = []
+    var polygon = L.polygon([
+    [{{request_box["latmax"]}}, {{request_box["lonmin"]}}],
+    [{{request_box["latmax"]}}, {{request_box["lonmax"]}}],
+    [{{request_box["latmin"]}}, {{request_box["lonmax"]}}],
+    [{{request_box["latmin"]}}, {{request_box["lonmin"]}}]
+    ], {fillOpacity: 0.01}).addTo(mymap);
+
+    markers.push(polygon)
+    {% for coord,tweet_list in tweets.items() %}
+        marker = L.marker({{coord|list}}, {icon: twitterIcon});
+        var tweet_text = "<center><table class=\"table\">";
+
+        {% for tweet in tweet_list %}
+            tweet_text += "<tr><td>"
+            tweet_text += '<img src="{{tweet["user"]["profile_image_url_https"]}}"></td><td>'
+            tweet_text += '<a href="https://twitter.com/{{tweet['user']['screen_name']}}" target=\"_blank\">@{{tweet['user']['screen_name']}} </a> <br> {{tweet["text"].replace("\n", " ")}} <br> {{tweet["dt"]}} </a><br>'
+            {% for url in tweet['entities']['urls'] %}
+                tweet_text += "<a href={{url['expanded_url']}} target=\"_blank\">Link</a><br>"
+            {% endfor %}
+            tweet_text += '<a href="{{tweet["tweet_url"]}}" target=\"_blank\">Original Tweet</a>'
+            tweet_text += "</td></tr>"
+        {% endfor %}
+        tweet_text += "</table></center>"
+
+        coord_map[{{coord|list|string}}] = tweet_text
+
+        var to_show = ""
+        {% if tweet_list|length < 3 %}
+            to_show = tweet_text;
+        {% else %}
+            to_show = "{{tweet_list|length}} tweets <br>"
+            to_show += '<a href="#" data-id="' + {{coord|list|string}} + '" onclick="showTweets($(this).data(\'id\'));">Show {{tweet_list|length}} Tweets</a>'
+        {% endif %}
+
+
+        marker.addTo(mymap).bindPopup(to_show, {maxWidth:500, minWidth:400});
+        markers.push(marker)
+
+    {% endfor %}
+
+    var featureGroup = L.featureGroup(markers)
+    mymap.fitBounds(featureGroup.getBounds());
+
+</script>
+    </center>
+    </div>
+
+    <div id="show-tweets">
+
+
+    </div>
+</body>

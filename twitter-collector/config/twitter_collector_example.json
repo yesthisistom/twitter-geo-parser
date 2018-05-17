@@ -1,0 +1,31 @@
+{
+	"regions" : {
+		"WDC" : {
+			"name"   : "washington",
+			"latmin" : 38.860,
+			"lonmin" : -77.066,
+			"latmax" : 38.962,
+			"lonmax" : -76.955
+		},
+		"SIN" : {
+			"name"   : "singapore",
+			"latmin" : 1.195,
+			"lonmin" : 103.53,
+			"latmax" : 1.614,
+			"lonmax" : 104.17
+		}
+	},
+
+	"connectors" : {
+		"twitter" : {
+    		"consumer_key" : "",
+    		"consumer_secret" : "",
+    		"access_token" : "",
+    		"access_token_secret" : ""
+		},
+        "mongodb" : {
+            "host": "localhost",
+            "port": 27017
+        }
+	}
+}
